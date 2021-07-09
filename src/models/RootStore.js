@@ -1,22 +1,27 @@
 import { RootStoreBase, configureStoreMixin } from "../mobx-cube/RootStoreBase"
 import { v4 as uuid4 } from "uuid"
 import {FooModel} from "./Foo"
+import {BarModel} from "./Bar"
 
 export const RootStore = RootStoreBase.named("RootStore")
-	.extend(configureStoreMixin([["Foo", () => FooModel]], ["Foo"], "js"))
+	.extend(configureStoreMixin([["Foo", () => FooModel], ["Bar", () => BarModel]], ["Foo", "Bar"], "js"))
 	.props({
-		foos: Map
+		foos: Map,
+		bars: Map
 	})
 	.actions(self => ({
-		generateFoos(count){
-			let newFoos = []
+		generateNodes(type, count){
+			if (!this.isKnownType(type))
+				throw new Error("Unknown type:", type)
+			let newNodes = []
 			for (let i = 0; i < count; i++){
-				newFoos.push({
-					__typename: "Foo",
+				newNodes.push({
+					__typename: type,
 					id: uuid4(),
 					value: Math.random()*100
 				})	
 			}
-			self.merge(newFoos)
+			self.merge(newNodes)
 		}
 	}))
+
